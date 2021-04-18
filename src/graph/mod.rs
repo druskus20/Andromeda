@@ -1,6 +1,8 @@
 use anyhow::Result;
 use anyhow::{bail, Context};
 use itertools::Itertools;
+use std::fmt::{Display, Formatter};
+use core::fmt;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct Id(usize);
@@ -11,13 +13,10 @@ impl Id {
     }
 }
 
-
-
 pub trait HasId {
     fn get_id(&self) -> Id;
     fn set_id(&mut self, id: Id);
 }
-
 
 #[derive(Clone, Debug)]
 pub struct Node<T> {
@@ -31,6 +30,7 @@ pub struct Graph<T> {
     pub adj_matrix: Vec<Vec<bool>>,
 }
 
+
 // TODO: Maybe custom trait iterate with Ids, where Ids are actually Node Ids not indexes
 // TODO: is this needed?
 impl<T> IntoIterator for Graph<T> {
@@ -42,7 +42,7 @@ impl<T> IntoIterator for Graph<T> {
     }
 }
 
-impl<T: HasId> Graph<T> {
+impl<T> Graph<T> {
     pub fn new() -> Self {
         Graph {
             nodes: vec![],
@@ -126,18 +126,15 @@ impl<T: HasId> Graph<T> {
     }
 
     fn change_adj_matrix_at(&mut self, id1: Id, id2: Id, value: bool) -> Result<()> {
-        *self.get_connection(id1, id2).with_context(|| format!(
-            "The connection {} -> {} could not be added",
-            id1.0, id2.0
-        ))? = value;
+        *self.get_connection(id1, id2).with_context(|| {
+            format!("The connection {} -> {} could not be added", id1.0, id2.0)
+        })? = value;
         Ok(())
     }
 
     fn is_node_in_graph(&self, id: Id) -> Result<()> {
-        self.get_node(id).with_context(|| format!(
-            "Node with id {} does not exist in the graph",
-            id.0
-        ))?;
+        self.get_node(id)
+            .with_context(|| format!("Node with id {} does not exist in the graph", id.0))?;
         Ok(())
     }
 
@@ -158,9 +155,8 @@ impl<T: HasId> Graph<T> {
     }
 }
 
-impl<T: HasId> Node<T> {
-    pub fn new(mut value: T, id: Id) -> Self {
-        value.set_id(id);
+impl<T> Node<T> {
+    pub fn new(value: T, id: Id) -> Self {
         Node { value, id }
     }
 }
@@ -184,17 +180,17 @@ mod test {
     fn test_insertion_and_removal() {
         let mut g = Graph::<Note>::new();
 
-        g.add_node(Note::from("")).unwrap();
+        g.add_node(Note::new()).unwrap();
         assert_eq!(g.nodes.len(), 1);
         assert_eq!(g.adj_matrix.len(), 1);
         assert_eq!(g.adj_matrix[0].len(), 1);
 
-        g.add_node(Note::from("")).unwrap();
+        g.add_node(Note::new()).unwrap();
         assert_eq!(g.nodes.len(), 2);
         assert_eq!(g.adj_matrix.len(), 2);
         assert_eq!(g.adj_matrix[0].len(), 2);
 
-        g.add_node(Note::from("")).unwrap();
+        g.add_node(Note::new()).unwrap();
         assert_eq!(g.nodes.len(), 3);
         assert_eq!(g.adj_matrix.len(), 3);
         assert_eq!(g.adj_matrix[0].len(), 3);
@@ -204,7 +200,7 @@ mod test {
         assert_eq!(g.adj_matrix.len(), 3);
         assert_eq!(g.adj_matrix[0].len(), 3);
 
-        g.add_node(Note::from("")).unwrap();
+        g.add_node(Note::new()).unwrap();
         assert_eq!(g.nodes.len(), 3);
         assert_eq!(g.adj_matrix.len(), 3);
         assert_eq!(g.adj_matrix[0].len(), 3);
@@ -214,10 +210,9 @@ mod test {
     fn test_add_remove_connection() {
         let mut g = Graph::<Note>::new();
 
-        g.add_node(Note::from("")).unwrap();
-        g.add_node(Note::from("")).unwrap();
-        g.add_node(Note::from("")).unwrap();
-
+        g.add_node(Note::new()).unwrap();
+        g.add_node(Note::new()).unwrap();
+        g.add_node(Note::new()).unwrap();
 
         let id0 = Id::new(0);
         let id1 = Id::new(1);
@@ -246,3 +241,5 @@ mod test {
         assert_eq!(c, false);
     }
 }
+
+

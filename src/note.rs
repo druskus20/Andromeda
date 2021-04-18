@@ -1,15 +1,22 @@
+/*
+   Idea is:
+       - There's a pile of notes unorganized in one directory
+       - There are separate directories for each tag, that contain symlinks to notes in the pile directory
+*/
+
 use crate::graph::{HasId, Id};
 use std::path::{Path, PathBuf};
 
+// TODO: Consider removing id and using node instead
 #[derive(Debug, Clone)]
 pub struct Note {
-    pub id: Id,
     pub title: String,
     pub path: PathBuf,
     pub tags: Vec<String>,
 }
 
 // Impl From<P> for Note where P implements AsRef<Path>
+/*
 impl<P: AsRef<Path>> From<P> for Note {
     fn from(path: P) -> Self {
         let path = path.as_ref();
@@ -21,13 +28,17 @@ impl<P: AsRef<Path>> From<P> for Note {
             tags: vec![],
         }
     }
+}*/
+
+impl Note {
+    pub fn new() -> Self {
+        Note {
+            title: "".to_string(),
+            path: PathBuf::from(""),
+            tags: vec![],
+        }
+    }
 }
 
-impl HasId for Note {
-    fn get_id(&self) -> Id {
-        self.id
-    }
-    fn set_id(&mut self, id: Id) {
-        self.id = id;
-    }
-}
+
+
