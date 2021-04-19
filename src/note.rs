@@ -4,7 +4,6 @@
        - There are separate directories for each tag, that contain symlinks to notes in the pile directory
 */
 
-use crate::graph::{HasId, Id};
 use std::path::{Path, PathBuf};
 
 // TODO: Consider removing id and using node instead
@@ -39,6 +38,3 @@ impl Note {
         }
     }
 }
-
-
-

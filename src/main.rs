@@ -1,23 +1,17 @@
 #![feature(format_args_capture)]
 #![feature(try_blocks)]
 
-use crate::graph::Graph;
-use crate::graph::Id;
+use crate::opts::{Action::*, Opt};
 use crate::view::simple_ui;
 use anyhow::bail;
 use note::Note;
-use crate::opts::{
-    Opt,
-    Action::*,
-};
 use structopt::StructOpt;
 
-
-pub mod graph;
-pub mod note;
-pub mod view;
 mod config;
+pub mod note;
+mod note_collection;
 mod opts;
+pub mod view;
 
 /*
 - Each graph (node) is a directory that contains index.md - embeds_dir
@@ -29,7 +23,6 @@ mod opts;
 */
 
 fn main() {
-    let mut g = Graph::<Note>::new();
     let opts = Opt::from_args();
 
     match opts.action {
@@ -39,11 +32,4 @@ fn main() {
             std::process::exit(1);
         }
     };
-    
-    Note::new();
-   
-    g.add_node(Note::new()).unwrap();
-    g.add_node(Note::new()).unwrap();
-    g.remove_node(Id::new(0)).unwrap();
-    g.add_node(Note::new()).unwrap();
 }
